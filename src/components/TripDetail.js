@@ -1,61 +1,39 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import DayList from "./DayList"; 
 import Api from "../api/api";
-import PackingList from "./PackingList";
-import DayList from "./DayList";
-import UserContext from "../auth/UserContext"; // Import context
 
-
-function TripDetail() {
+const TripDetail = () => {
   const { tripId } = useParams();
-  const [trip, setTrip] = useState(null);
-  const [weather, setWeather] = useState([]);
-  const [activities, setActivities] = useState([]);
-  const { unit } = useContext(UserContext); // Get unit from context
+  const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchDetails() {
       try {
-        const tripRes = await Api.getTrip(tripId);
-        setTrip(tripRes);
-
-        const weatherRes = await Api.getTripWeather(tripId);
-        setWeather(weatherRes);
-
-        const activitiesRes = await Api.getActivities(tripId);
-        setActivities(activitiesRes);
+        const data = await Api.getTripWeather(tripId);
+        setWeatherData({ days: data }); // Pass as an object with `days`
       } catch (err) {
         console.error("Failed to load trip details", err);
+        setError(err);
       }
     }
     fetchDetails();
   }, [tripId]);
 
-  if (!trip) return <p>Loading...</p>;
+  if (!weatherData) return <p>Loading weather data...</p>;
+  if (error) return <p>Error: {error[0]}</p>;
 
   return (
     <div>
-      <h1>{trip.location}</h1>
-      <h3>{trip.start_date} - {trip.end_date}</h3>
-
-      <h2>Weather Forecast</h2>
-      <DayList 
-        weatherData={{ days: weather }} 
-        unit={unit} 
-        onDayClick={() => {}} // Provide dummy function if not used
+      <h2>Trip Weather Details</h2>
+      <DayList
+        weatherData={weatherData}
+        unit="us" // Assuming a unit default for demo
+        onDayClick={(dayIndex) => console.log("Selected Day:", dayIndex)}
       />
-
-      <h2>Activities</h2>
-      <ul>
-        {activities.map((a) => (
-          <li key={a.id}>{a.date}: {a.description}</li>
-        ))}
-      </ul>
-
-      <h2>Packing List</h2>
-      <PackingList tripId={tripId} />
     </div>
   );
-}
+};
 
 export default TripDetail;

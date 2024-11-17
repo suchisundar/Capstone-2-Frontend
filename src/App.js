@@ -23,8 +23,8 @@ function App() {
   useEffect(() => {
     async function loadUser() {
       if (token) {
+        Api.setToken(token); // Ensure token is set for all requests.
         try {
-          Api.setToken(token);
           const decoded = decodeToken(token);
           const currentUser = await Api.getCurrentUser(decoded.username);
           setCurrentUser(currentUser);
@@ -37,6 +37,7 @@ function App() {
     }
     loadUser();
   }, [token]);
+  
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -68,9 +69,10 @@ function App() {
           element={currentUser ? <AddTripForm /> : <Navigate to="/" />}
         />
         <Route
-          path="/trips/:tripId/activities"
+          path="/activitysearch"
           element={currentUser ? <Activities /> : <Navigate to="/" />}
         />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </UserContext.Provider>

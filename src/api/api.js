@@ -5,7 +5,6 @@ const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
 class Api {
   static token;
 
-  // Sets the token for authenticated requests
   static setToken(token) {
     this.token = token;
   }
@@ -20,7 +19,7 @@ class Api {
       return response.data;
     } catch (err) {
       console.error("API Error:", err.response);
-      const message = err.response?.data?.error?.message || "Unknown API error";
+      const message = err.response?.data?.error || "Unknown API error";
       throw Array.isArray(message) ? message : [message];
     }
   }
@@ -67,21 +66,40 @@ class Api {
     return res.weather;
   }
 
-  static async addPackingItem(tripId, item) {
-    const res = await this.request(`trips/${tripId}/packinglist`, item, "post");
-    return res.packingListItem;
-  }
+ // Add packing item
+static async addPackingItem(tripId, item) {
+  const res = await this.request(`trips/${tripId}/packinglist`, { item_name: item }, "post");
+  return res.packingListItem;
+}
 
   static async getPackingList(tripId) {
     const res = await this.request(`trips/${tripId}/packinglist`); 
     return res.packingList;
   }
   
+ // Toggle packing item status
+static async togglePackingItemStatus(itemId, isChecked) {
+  const res = await this.request(`packing-items/${itemId}`, { is_checked: isChecked }, "patch");
+  return res.packingItem;
+}
+
+ // Delete packing item
+static async deletePackingItem(itemId) {
+  await this.request(`packing-items/${itemId}`, {}, "delete");
+}
 
   static async getActivities(tripId) {
     const res = await this.request(`trips/${tripId}/activities`);
     return res.activities;
   }
-}
+
+  static async searchActivities(location) {
+    const res = await this.request(`activitysearch`, { location }); // Correct endpoint
+    return res.activities;
+  }
+}  
+
+
+  
 
 export default Api;

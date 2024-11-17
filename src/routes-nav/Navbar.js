@@ -23,7 +23,7 @@ const NavBar = ({ logout, login, signup }) => {
           {currentUser ? (
             <>
               <NavLink to="/trips" className="nav-link">My Trips</NavLink>
-              <NavLink to="/activities" className="nav-link">Activity Search</NavLink>
+              <NavLink to="/activitysearch" className="nav-link">Activities</NavLink>
               <Nav.Link onClick={logout}>Log Out</Nav.Link>
             </>
           ) : (
