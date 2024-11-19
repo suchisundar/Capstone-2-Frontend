@@ -36,7 +36,7 @@ const SearchForm = ({ searchFor, unit}) => {
     <Form onSubmit={handleSubmit}>
         <Form.Group className="d-flex align-items-center">
         <Form.Control
-          placeholder="Search for a city, address or zip code"
+          placeholder="Search for a city"
           type="text"
           name="searchTerm"
           value={searchTerm}

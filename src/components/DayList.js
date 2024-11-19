@@ -1,42 +1,39 @@
-import React from "react";
-import PropTypes from "prop-types";
-import DayCard from "./DayCard";
-import Row from "react-bootstrap/Row";
+// src/components/DayList.js
+import React from 'react';
+import PropTypes from 'prop-types';
+import DayCard from './DayCard';
 
-const DayList = ({ weatherData, unit, onDayClick }) => {
-  const handleDayClick = (index) => {
-    onDayClick && onDayClick(index);
-  };
-
+const DayList = ({ weatherData, activities, tripId, unit, onActivityAdded }) => {
   return (
-    <Row className="flex-nowrap overflow-auto py-4">
-      {weatherData.days.map((day, index) => (
-        <DayCard
-          key={day.datetime}
-          date={day.datetime}
-          tempMax={`${day.tempmax}°${unit === "us" ? "F" : "C"}`}
-          tempMin={`${day.tempmin}°${unit === "us" ? "F" : "C"}`}
-          precip={day.precipprob}
-          onClick={() => handleDayClick(index)}
-        />
-      ))}
-    </Row>
+    <div>
+      {weatherData.days.map((day, index) => {
+        const dayActivities = activities.filter(
+          (activity) => activity.date === day.datetime
+        );
+
+        return (
+          <DayCard
+            key={day.datetime || index}
+            day={day}
+            activities={dayActivities}
+            tripId={tripId}
+            unit={unit}
+            onActivityAdded={onActivityAdded}
+          />
+        );
+      })}
+    </div>
   );
 };
 
 DayList.propTypes = {
   weatherData: PropTypes.shape({
-    days: PropTypes.arrayOf(
-      PropTypes.shape({
-        datetime: PropTypes.string.isRequired,
-        tempmax: PropTypes.number.isRequired,
-        tempmin: PropTypes.number.isRequired,
-        precipprob: PropTypes.number,
-      })
-    ),
+    days: PropTypes.arrayOf(PropTypes.object).isRequired,
   }).isRequired,
+  activities: PropTypes.array.isRequired,
+  tripId: PropTypes.string.isRequired,
   unit: PropTypes.string.isRequired,
-  onDayClick: PropTypes.func,
+  onActivityAdded: PropTypes.func.isRequired,
 };
 
 export default DayList;

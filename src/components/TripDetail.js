@@ -1,18 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import DayList from "./DayList"; 
+// src/components/TripDetail.js
+import React, { useState, useEffect, useContext } from "react";
+import { useParams, Link } from "react-router-dom";
 import Api from "../api/api";
+import PackingList from "./PackingList";
+import DayList from "./DayList";
+import UserContext from "../auth/UserContext";
 
-const TripDetail = () => {
+function TripDetail() {
   const { tripId } = useParams();
+  const [trip, setTrip] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [activities, setActivities] = useState([]);
   const [error, setError] = useState(null);
+  const { unit } = useContext(UserContext); // Assuming unit is stored in context
 
   useEffect(() => {
     async function fetchDetails() {
       try {
-        const data = await Api.getTripWeather(tripId);
-        setWeatherData({ days: data }); // Pass as an object with `days`
+        const tripRes = await Api.getTrip(tripId);
+        setTrip(tripRes);
+
+        const weatherRes = await Api.getTripWeather(tripId);
+        setWeatherData(weatherRes);
+
+        const activitiesRes = await Api.getActivities(tripId);
+        setActivities(activitiesRes);
       } catch (err) {
         console.error("Failed to load trip details", err);
         setError(err);
@@ -21,19 +33,29 @@ const TripDetail = () => {
     fetchDetails();
   }, [tripId]);
 
-  if (!weatherData) return <p>Loading weather data...</p>;
-  if (error) return <p>Error: {error[0]}</p>;
+  const handleActivityAdded = (newActivity) => {
+    setActivities([...activities, newActivity]);
+  };
+
+  if (error) return <p>Error: {error[0] || error.message}</p>;
+  if (!trip || !weatherData) return <p>Loading...</p>;
 
   return (
     <div>
-      <h2>Trip Weather Details</h2>
+      <h1>{trip.location}</h1>
+      <h3>{trip.start_date} - {trip.end_date}</h3>
+      <h2>Weather Forecast</h2>
       <DayList
         weatherData={weatherData}
-        unit="us" // Assuming a unit default for demo
-        onDayClick={(dayIndex) => console.log("Selected Day:", dayIndex)}
+        activities={activities}
+        tripId={tripId}
+        unit={unit || "us"}
+        onActivityAdded={handleActivityAdded}
       />
+      <h2>Packing List</h2>
+      <PackingList tripId={tripId} />
     </div>
   );
-};
+}
 
 export default TripDetail;

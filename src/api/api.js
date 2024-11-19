@@ -13,14 +13,17 @@ class Api {
     const url = `${BASE_URL}/${endpoint}`;
     const headers = { Authorization: `Bearer ${this.token}` };
     const params = method === "get" ? data : {};
-
+  
     try {
       const response = await axios({ url, method, data, params, headers });
       return response.data;
     } catch (err) {
-      console.error("API Error:", err.response);
-      const message = err.response?.data?.error || "Unknown API error";
-      throw Array.isArray(message) ? message : [message];
+      console.error("API Error:", err.response || err.message);
+      const errorMessage = err.response?.data?.error?.message || err.response?.data?.error || err.message || "Unknown API error";
+      const errorStatus = err.response?.status || 500;
+      const error = new Error(errorMessage);
+      error.status = errorStatus;
+      throw error;
     }
   }
 
@@ -65,6 +68,7 @@ class Api {
     const res = await this.request(`trips/${tripId}/weather`);
     return res.weather;
   }
+  
 
  // Add packing item
 static async addPackingItem(tripId, item) {
@@ -94,12 +98,18 @@ static async deletePackingItem(itemId) {
   }
 
   static async searchActivities(location) {
-    const res = await this.request(`activitysearch`, { location }); // Correct endpoint
+    const res = await this.request(`activitysearch`, { location }); 
     return res.activities;
   }
+
+  static async addActivityToTrip(tripId, activityData) {
+  const res = await this.request(`trips/${tripId}/activities`, activityData, 'post');
+  return res.activity;
+}
+  
+
 }  
 
 
-  
 
 export default Api;

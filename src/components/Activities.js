@@ -1,45 +1,41 @@
-import React, { useState } from "react";
-import Api from "../api/api";
+// src/routes-nav/Activities.js
+import React, { useState } from 'react';
+import Api from '../api/api';
+import SearchForm from '../common/SearchForm';
 
-const ActivitySearch = () => {
-  const [location, setLocation] = useState("");
+function Activities() {
   const [activities, setActivities] = useState([]);
   const [error, setError] = useState(null);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  const searchFor = async (location) => {
     try {
       const results = await Api.searchActivities(location);
       setActivities(results);
-      setError(null);
     } catch (err) {
-      console.error("Error fetching activities:", err);
-      setError("Failed to fetch activities. Please try again.");
+      console.error('Failed to search activities', err);
+      setError(err);
     }
   };
 
   return (
     <div>
-      <h2>Search for Activities</h2>
-      <form onSubmit={handleSearch}>
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Enter location"
-        />
-        <button type="submit">Search</button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <ul>
-        {activities.map((activity) => (
-          <li key={activity.id}>
-            <strong>{activity.name}</strong> - {activity.description}
-          </li>
-        ))}
-      </ul>
+      <h2>Search Activities</h2>
+      <SearchForm searchFor={searchFor} />
+      {activities.length > 0 && (
+        <div>
+          <h3>Results:</h3>
+          {activities.map((activity) => (
+            <div key={activity.id}>
+              <p><strong>{activity.name}</strong></p>
+              <p>{activity.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {error && <p>Error: {error[0] || error.message}</p>}
     </div>
   );
-};
+}
 
-export default ActivitySearch;
+export default Activities;
+
