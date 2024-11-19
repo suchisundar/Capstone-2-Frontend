@@ -4,6 +4,10 @@ import PropTypes from 'prop-types';
 import DayCard from './DayCard';
 
 const DayList = ({ weatherData, activities, tripId, unit, onActivityAdded }) => {
+  if (!weatherData || !weatherData.days) {
+    return <p>No weather data available.</p>;
+  }
+
   return (
     <div>
       {weatherData.days.map((day, index) => {
@@ -11,10 +15,19 @@ const DayList = ({ weatherData, activities, tripId, unit, onActivityAdded }) => 
           (activity) => activity.date === day.datetime
         );
 
+        // Map properties to match what DayCard expects
+        const dayData = {
+          datetime: day.datetime,
+          temperatureMax: day.tempmax,
+          temperatureMin: day.tempmin,
+          description: day.description,
+          icon: day.icon,
+        };
+
         return (
           <DayCard
             key={day.datetime || index}
-            day={day}
+            day={dayData}
             activities={dayActivities}
             tripId={tripId}
             unit={unit}

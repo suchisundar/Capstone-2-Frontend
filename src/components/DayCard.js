@@ -1,7 +1,10 @@
 // src/components/DayCard.js
+
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Api from '../api/api';
+import icons from '../icons/icons';
+import { format } from 'date-fns';
 
 const DayCard = ({ day, activities, tripId, unit, onActivityAdded }) => {
   const [activityDescription, setActivityDescription] = useState('');
@@ -23,14 +26,17 @@ const DayCard = ({ day, activities, tripId, unit, onActivityAdded }) => {
     }
   };
 
+  // Get the icon from the icons object
+  const iconSrc = icons[day.icon] || icons['default-icon'];
+
   return (
     <div>
-      <h3>{day.datetime}</h3>
+      <h3>{format(new Date(day.datetime), 'MM-dd-yyyy')}</h3>
       <p>{day.description}</p>
       <p>
         High: {day.temperatureMax}°{unit} | Low: {day.temperatureMin}°{unit}
       </p>
-      <img src={`path/to/icons/${day.icon}.png`} alt={day.description} />
+      <img src={iconSrc} alt={day.description} />
       <div>
         <h4>Activities for this day:</h4>
         {activities.length > 0 ? (
